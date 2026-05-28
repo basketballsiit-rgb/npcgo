@@ -1,0 +1,18 @@
+export function Logo({ className = "" }: { className?: string }) {
+  return (
+    <svg 
+      xmlns="http://www.w3.org/2000/svg" 
+      viewBox="0 0 200 200" 
+      fill="none" 
+      className={className}
+    >
+      <path d="M100 20 C140 20, 180 40, 180 80 C180 140, 120 180, 100 190 C80 180, 20 140, 20 80 C20 40, 60 20, 100 20 Z" fill="#0f172a" stroke="#14b8a6" strokeWidth="8"/>
+      <path d="M100 35 C130 35, 160 50, 160 80 C160 125, 115 160, 100 170 C85 160, 40 125, 40 80 C40 50, 70 35, 100 35 Z" fill="#1e293b" />
+      <circle cx="100" cy="95" r="45" fill="#eab308" />
+      <path d="M70 105 L75 90 L105 90 L115 105 L125 105 A10 10 0 0 1 135 115 L135 125 L65 125 L65 115 A10 10 0 0 1 70 105 Z" fill="#ffffff"/>
+      <circle cx="80" cy="125" r="8" fill="#1e293b"/>
+      <circle cx="120" cy="125" r="8" fill="#1e293b"/>
+      <text x="100" y="70" fontFamily="Arial, sans-serif" fontSize="20" fontWeight="bold" fill="#ffffff" textAnchor="middle" letterSpacing="2">NPC_GO</text>
+    </svg>
+  );
+}

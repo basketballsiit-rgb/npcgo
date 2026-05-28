@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/client-vehicle"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL_VEHICLE")
+}
+
+model Master_Vehicles {
+  carId               Int                @id @default(autoincrement())
+  licensePlate        String
+  carType             String
+  status              String             @default("Ready")
+  actExpiryDate       DateTime?
+  insuranceExpiryDate DateTime?
+  requests            Vehicle_Requests[]
+}
+
+model Master_Drivers {
+  driverId   Int                @id @default(autoincrement())
+  driverName String
+  lineUserId String?
+  requests   Vehicle_Requests[]
+}
+
+model Vehicle_Requests {
+  requestId        Int       @id @default(autoincrement())
+  requesterStaffId Int // References Staff(staffId) from npc_job
+  purpose          String
+  destination      String
+  refOrderNumber   String?
+  refOrderDate     DateTime?
+  startDateTime    DateTime
+  endDateTime      DateTime
+  passengerCount   Int
+  passengerNames   String    @db.Text
+
+  carId Int?
+  car   Master_Vehicles? @relation(fields: [carId], references: [carId])
+
+  driverId Int?
+  driver   Master_Drivers? @relation(fields: [driverId], references: [driverId])
+
+  status String @default("Pending_Dept_Approval")
+  // Statuses: Pending_Dept_Approval, Pending_Scheduler, Pending_Admin_Approval, Approved, Rejected
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

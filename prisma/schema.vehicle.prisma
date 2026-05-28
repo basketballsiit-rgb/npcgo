@@ -1,0 +1,172 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/client-vehicle"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL_VEHICLE")
+}
+
+model Master_Vehicles {
+  carId                 Int                @id @default(autoincrement())
+  licensePlate          String
+  brand                 String?
+  carType               String
+  capacity              Int                @default(4)
+  status                String             @default("Ready")
+  actExpiryDate         DateTime?
+  insuranceExpiryDate   DateTime?
+  taxExpiryDate         DateTime?          // วันหมดอายุภาษี/ทะเบียนปัจจุบัน
+  requests              Vehicle_Requests[]
+  maintenances          Vehicle_Maintenances[] // ประวัติการส่งซ่อมบำรุงรถยนต์
+  fuelLogs              Vehicle_Fuel_Logs[]    // ประวัติการเติมน้ำมัน
+  taxes                 Vehicle_Taxes[]        // ประวัติการต่อภาษี/ทะเบียน
+  tires                 Vehicle_Tires[]        // ประวัติการเปลี่ยนยาง
+}
+
+model Master_Drivers {
+  driverId          Int                @id @default(autoincrement())
+  driverName        String
+  phone             String?
+  status            String             @default("Available")
+  lineUserId        String?
+  licenseNumber     String?            // เลขที่ใบอนุญาตขับขี่
+  licenseExpiryDate DateTime?          // วันหมดอายุใบอนุญาตขับขี่
+  address           String?            @db.Text // ที่อยู่สำหรับข้อมูลส่วนตัวคนขับ
+  requests          Vehicle_Requests[]
+  leaves            Driver_Leaves[]    // ประวัติการลา/หยุดของพนักงานขับรถ
+}
+
+model Vehicle_Requests {
+  requestId        Int       @id @default(autoincrement())
+  requesterStaffId Int       // References Staff(staffId) from npc_job
+  purpose          String
+  destination      String
+  province         String    @default("น่าน")
+  refOrderNumber   String?
+  refOrderDate     DateTime?
+  startDateTime    DateTime
+  endDateTime      DateTime
+  passengerCount   Int
+  passengerNames   String    @db.Text
+  
+  carId            Int?
+  car              Master_Vehicles? @relation(fields: [carId], references: [carId])
+  
+  driverId         Int?
+  driver           Master_Drivers?  @relation(fields: [driverId], references: [driverId])
+  
+  status           String    @default("Pending_Dept_Approval") 
+  // Statuses: Pending_Dept_Approval, Pending_Scheduler, Pending_Resource_Deputy_Approval, Pending_Director_Approval, Approved, Rejected, In_Transit, Completed
+
+  // ฟิลด์สำหรับการบันทึกเลขไมล์เดินทางและภาพถ่ายหลักฐาน
+  startOdometer        Int?      // เลขไมล์ออกเดินทาง (กิโลเมตร)
+  endOdometer          Int?      // เลขไมล์เดินทางกลับ (กิโลเมตร)
+  startOdometerPhoto   String?   // เส้นทางรูปภาพไมล์ออก (Evidence Photo)
+  endOdometerPhoto     String?   // เส้นทางรูปภาพไมล์เข้า (Evidence Photo)
+  actualDistance       Int?      // ระยะทางที่ใช้วิ่งจริง (กิโลเมตร)
+  departureRecordedAt  DateTime? // วันเวลาที่บันทึกรถออกเดินทาง
+  arrivalRecordedAt    DateTime? // วันเวลาที่บันทึกรถกลับถึง
+
+  // ฟิลด์สำหรับการจองประจำแบบจองซ้ำ (Recurring Booking)
+  isRecurring       Boolean   @default(false)      // เป็นตารางเดินทางประจำหรือไม่
+  recurrencePattern String?   // รูปแบบ: "DAILY" | "WEEKDAYS" | "WEEKLY"
+  recurrenceGroupId String?   // รหัสกลุ่มจองแบบประจำ (UUID)
+  parentRequestId   Int?      // รหัสคำขอหลักของตารางนี้
+
+  rejectionReason   String?   @db.Text             // เหตุผลในกรณีพิจารณาไม่อนุมัติคำขอ
+
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  fuelLogs         Vehicle_Fuel_Logs[] // ประวัติการเติมน้ำมัน
+}
+
+model Driver_Leaves {
+  leaveId     Int            @id @default(autoincrement())
+  driverId    Int
+  driver      Master_Drivers @relation(fields: [driverId], references: [driverId], onDelete: Cascade)
+  startDate   DateTime       // เริ่มลางานเมื่อ
+  endDate     DateTime       // สิ้นสุดลางานเมื่อ
+  leaveType   String         // ประเภท: "SICK" (ลาป่วย) | "PERSONAL" (ลากิจ) | "VACATION" (ลาพักร้อน) | "ABSENT" (ขาดงาน)
+  reason      String?        @db.Text // เหตุผลการลา
+  status      String         @default("APPROVED") // APPROVED | CANCELLED
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([driverId])
+}
+
+model Vehicle_Maintenances {
+  maintenanceId   Int             @id @default(autoincrement())
+  carId           Int
+  car             Master_Vehicles @relation(fields: [carId], references: [carId], onDelete: Cascade)
+  startDate       DateTime        // วันเริ่มต้นส่งซ่อม/บำรุง
+  endDate         DateTime        // วันสิ้นสุด (กำหนดการเสร็จ)
+  type            String          // ประเภท: "MAINTENANCE" (ตรวจเช็คระยะ) | "REPAIR" (ซ่อมแซม) | "INSPECTION" (ตรวจสภาพ) | "ACCIDENT" (เคลมประกัน)
+  cost            Float?          // ค่าใช้จ่ายในการดำเนินการ
+  details         String?         @db.Text // รายละเอียดความชำรุดเสียหาย/การบำรุง
+  status          String          @default("SCHEDULED") // SCHEDULED | IN_PROGRESS | COMPLETED | CANCELLED
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([carId])
+}
+
+model Vehicle_Fuel_Logs {
+  fuelLogId     Int              @id @default(autoincrement())
+  amount        Float            // จำนวนเงินค่าน้ำมัน (บาท)
+  fillDate      DateTime         // วันที่เติมน้ำมัน
+  
+  carId         Int?
+  car           Master_Vehicles? @relation(fields: [carId], references: [carId], onDelete: SetNull)
+  
+  liters        Float?           // จำนวนลิตรที่เติม (คำนวณประสิทธิภาพ)
+  odometerRead  Float?           // เลขไมล์หน้ารถล่าสุดขณะเติม (กิโลเมตร)
+  
+  requestId     Int?
+  request       Vehicle_Requests? @relation(fields: [requestId], references: [requestId], onDelete: SetNull)
+  
+  refSlip       String?          // เลขใบเสร็จ/รหัสสั่งเติมน้ำมัน (ถ้ามี)
+  fuelProvider  String?          // ผู้ค้าน้ำมัน / ปั๊มน้ำมัน (เช่น ปตท. ในน่าน, นอกจังหวัด)
+  notes         String?          @db.Text
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  @@index([carId])
+  @@index([requestId])
+}
+
+model Vehicle_Taxes {
+  taxId         Int             @id @default(autoincrement())
+  carId         Int
+  car           Master_Vehicles @relation(fields: [carId], references: [carId], onDelete: Cascade)
+  paymentDate   DateTime        // วันที่จ่ายภาษี/ต่อทะเบียน
+  expiryDate    DateTime        // วันสิ้นสุดอายุภาษีรอบนี้
+  cost          Float?          @default(0) // ค่าใช้จ่ายจริง (รองรับ 0 บาทสำหรับรถหลวง)
+  receiptNumber String?         // เลขที่ใบเสร็จรับเงิน/ป้ายภาษี
+  notes         String?         @db.Text    // บันทึก/หมายเหตุเพิ่มเติม
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([carId])
+}
+
+model Vehicle_Tires {
+  tireId        Int             @id @default(autoincrement())
+  carId         Int
+  car           Master_Vehicles @relation(fields: [carId], references: [carId], onDelete: Cascade)
+  changeDate    DateTime        // วันที่เปลี่ยนยาง
+  odometerRead  Int             // เลขไมล์รถยนต์ขณะเปลี่ยนยาง (กม.)
+  brand         String?         // ยี่ห้อยางรถยนต์
+  spec          String?         // สเปกยางรถยนต์ เช่น 195/65R15
+  cost          Float?          // ค่าใช้จ่ายรวม
+  tireCount     Int             @default(4) // จำนวนยางที่เปลี่ยน
+  limitOdometer Int?            // เลขไมล์แจ้งเตือนเปลี่ยนยางครั้งถัดไป
+  limitMonths   Int?            @default(36) // อายุขัยการใช้งานยาง (เริ่มต้น 36 เดือน)
+  notes         String?         @db.Text
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([carId])
+}
