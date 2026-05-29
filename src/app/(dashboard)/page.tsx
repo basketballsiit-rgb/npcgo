@@ -79,7 +79,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Expiry Alerts Banner */}
-      <AlertsBanner initialAlerts={alerts} />
+      <AlertsBanner initialAlerts={alerts as any} />
 
       {/* Summary Cards */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
