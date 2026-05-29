@@ -383,7 +383,7 @@ export default async function PrintRequestPage({ params }: { params: Promise<{ i
                 <img
                   src={requesterSigUrl}
                   alt="Requester Signature"
-                  className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-36 h-12 object-contain pointer-events-none mix-blend-multiply"
+                  className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-48 h-16 object-contain pointer-events-none mix-blend-multiply"
                 />
               )}
             </div>
@@ -400,7 +400,7 @@ export default async function PrintRequestPage({ params }: { params: Promise<{ i
                 <img
                   src={deputySigUrl}
                   alt="Deputy Signature"
-                  className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-36 h-12 object-contain pointer-events-none mix-blend-multiply"
+                  className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-48 h-16 object-contain pointer-events-none mix-blend-multiply"
                 />
               )}
             </div>
@@ -455,7 +455,7 @@ export default async function PrintRequestPage({ params }: { params: Promise<{ i
                   <img
                     src={schedulerSigUrl}
                     alt="Scheduler Signature"
-                    className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-36 h-12 object-contain pointer-events-none mix-blend-multiply"
+                    className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-48 h-16 object-contain pointer-events-none mix-blend-multiply"
                   />
                 )}
               </div>
@@ -472,7 +472,7 @@ export default async function PrintRequestPage({ params }: { params: Promise<{ i
                   <img
                     src={resourceDeputySigUrl}
                     alt="Resource Deputy Signature"
-                    className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-36 h-12 object-contain pointer-events-none mix-blend-multiply"
+                    className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-48 h-16 object-contain pointer-events-none mix-blend-multiply"
                   />
                 )}
               </div>
@@ -516,7 +516,7 @@ export default async function PrintRequestPage({ params }: { params: Promise<{ i
                 <img
                   src={directorSigUrl}
                   alt="Director Signature"
-                  className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-36 h-12 object-contain pointer-events-none mix-blend-multiply"
+                  className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-48 h-16 object-contain pointer-events-none mix-blend-multiply"
                 />
               )}
             </div>
