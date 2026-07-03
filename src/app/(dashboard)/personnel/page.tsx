@@ -291,7 +291,14 @@ export default function PersonnelPage() {
                               onValueChange={(val) => handleDeptMappingChange(dept.id, val || "none")}
                             >
                               <SelectTrigger className="w-full max-w-xs bg-white">
-                                <SelectValue placeholder="เลือกฝ่ายที่สังกัด..." />
+                                <SelectValue placeholder="เลือกฝ่ายที่สังกัด...">
+                                  {dept.mappedRole === "role_director" && "ผู้อำนวยการวิทยาลัย"}
+                                  {dept.mappedRole === "role_academic" && "ฝ่ายวิชาการ"}
+                                  {dept.mappedRole === "role_strategy" && "ฝ่ายยุทธศาสตร์และแผนงาน"}
+                                  {dept.mappedRole === "role_resource_deputy" && "ฝ่ายบริหารทรัพยากร"}
+                                  {dept.mappedRole === "role_student_affairs" && "ฝ่ายพัฒนากิจการนักเรียนนักศึกษา"}
+                                  {(!dept.mappedRole || dept.mappedRole === "none") && <span className="text-muted-foreground italic">-- ไม่ได้สังกัดฝ่ายไหน --</span>}
+                                </SelectValue>
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="none" className="text-muted-foreground italic">-- ไม่ได้สังกัดฝ่ายไหน --</SelectItem>
@@ -299,7 +306,7 @@ export default function PersonnelPage() {
                                 <SelectItem value="role_academic">ฝ่ายวิชาการ</SelectItem>
                                 <SelectItem value="role_strategy">ฝ่ายยุทธศาสตร์และแผนงาน</SelectItem>
                                 <SelectItem value="role_resource_deputy">ฝ่ายบริหารทรัพยากร</SelectItem>
-                                <SelectItem value="role_student_affairs">ฝ่ายพัฒนากิจการนักเรียนฯ</SelectItem>
+                                <SelectItem value="role_student_affairs">ฝ่ายพัฒนากิจการนักเรียนนักศึกษา</SelectItem>
                               </SelectContent>
                             </Select>
                           </TableCell>
